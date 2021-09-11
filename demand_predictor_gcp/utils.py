@@ -3,6 +3,8 @@ import numpy as np
 import urllib
 import json
 import datetime
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 
 # get data function and plot series
@@ -35,3 +37,9 @@ def get_daily_demand_data(start_date, end_date, write_json=False):
     times = [item['datetime'].split('T')[0] for item in values_dict]
     times = [datetime.datetime.strptime(t,"%Y-%m-%d").date() for t in times]
     return  np.array(values, dtype="float32"), np.array(times)
+
+def plot_series(time, series, format="-", start=0, end=None):
+    plt.plot(time[start:end], series[start:end], format)
+    plt.xlabel("Time")
+    plt.ylabel("Value (x1000 GWh)")
+    plt.grid(True)
