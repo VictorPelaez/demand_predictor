@@ -5,10 +5,12 @@ import pickle
 import subprocess
 import sys
 import fire
-import pandas as pd
 import tensorflow as tf
 import datetime
 import os
+
+import pandas as pd
+import numpy as np
 
 def load_dataset(pattern, window_size=30, batch_size=16, shuffle_buffer=100):
     """
@@ -38,7 +40,8 @@ def train_evaluate(training_dataset_path,
                    # validation_dataset_path,
                    window_size,
                    batch_size,
-                   epochs, lr,
+                   epochs,
+                   lr,
                    # num_train_examples, num_evals, 
                    output_dir):
     """
