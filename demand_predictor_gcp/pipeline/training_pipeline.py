@@ -7,9 +7,8 @@ from kfp.dsl.types import GCSPath
 from kfp.dsl.types import String
 from kfp.gcp import use_gcp_secret
 from kfp.components import func_to_container_op
-from helper_components import evaluate_model
 from helper_components import retrieve_best_run
-import kfp.dsl as dsl
+# import kfp.dsl as dsl
 import kfp.gcp as gcp
 import json
 
@@ -24,11 +23,6 @@ COMPONENT_URL_SEARCH_PREFIX = os.getenv('COMPONENT_URL_SEARCH_PREFIX')
 USE_KFP_SA = os.getenv('USE_KFP_SA')
 
 TRAINING_DATA_PATH = BUCKET + '/data/dataset.csv'
-COMPONENT_URL_SEARCH_PREFIX = 'https://raw.githubusercontent.com/kubeflow/pipelines/0.2.5/components/gcp/'
-
-# Create component factories
-component_store = kfp.components.ComponentStore(
-    local_search_paths=None, url_search_prefixes=[COMPONENT_URL_SEARCH_PREFIX])
 
 HYPERTUNE_SETTINGS = """
 {
@@ -56,18 +50,19 @@ HYPERTUNE_SETTINGS = """
 """
 
 
+
 # Create component factories
 component_store = kfp.components.ComponentStore(
-    local_search_paths=None,
-    url_search_prefixes=[COMPONENT_URL_SEARCH_PREFIX])
+    local_search_paths=None, url_search_prefixes=[COMPONENT_URL_SEARCH_PREFIX])
 
 # Load BigQuery and AI Platform Training op
 # bigquery_query_op = component_store.load_component('bigquery/query')
 mlengine_train_op = component_store.load_component('ml_engine/train')
 mlengine_deploy_op = component_store.load_component('ml_engine/deploy')
+retrieve_best_run_op = func_to_container_op(retrieve_best_run, base_image=BASE_IMAGE)
 
 # dsl pipeline definition
-@dsl.pipeline(
+@kfp.dsl.pipeline(
     name='Spanish Demand forecast Continuous Training',
     description='Pipeline to create training/validation on AI Platform Training Job'
 )
@@ -76,11 +71,14 @@ def pipeline(project_id,
              model_id,
              version_id,
              replace_existing_version,
-             region='us-central1',
+             region,
              hypertune_settings=HYPERTUNE_SETTINGS):
 
     # These are the output directories where our models will be saved
-    output_dir = project_id + '/models/pipeline'
+    # output_dir = gcs_root + '/models/pipeline'
+    output_dir = '{}/{}/{}/{}'.format(gcs_root, 
+                                      'models', 'pipeline', 
+                                      kfp.dsl.RUN_ID_PLACEHOLDER)
     
     # Tune hyperparameters
     tune_args = [
@@ -111,7 +109,7 @@ def pipeline(project_id,
         '--window_size', '30',
         '--batch_size', '16', 
         get_best_trial.outputs['lr'], '--lr',
-        get_best_trial.outputs['epochs'], '--epochs'
+        get_best_trial.outputs['epochs'], '--epochs',
         '--hptune', 'False'
     ]
 

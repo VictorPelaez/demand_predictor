@@ -1,2 +1,4 @@
 gcsfs==0.8
 kfp==1.8.1
+kfp==0.2.5
+pip3 install https://storage.googleapis.com/ml-pipeline/release/0.1.20/kfp.tar.gz --upgrade
