@@ -5,3 +5,9 @@ Gets daily demand dataset from [REE](https://www.ree.es/es/apidatos#request)
 
 You can test and play with the network parameters by running the jupyter notebook called [electricity_sp_demand_predictor.ipynb](electricity_sp_demand_predictor.ipynb) in Google colab. Also modify dates (`start_date` and `end_date`) to get recent data.
 
+## Demand predictor in AWS
+working on...
+
+## Other examples
+[electricity demand predictor using Apache Spark](other_examples/tf_demand_predictor.ipynb)
+
